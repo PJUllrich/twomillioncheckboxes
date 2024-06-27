@@ -7,15 +7,15 @@ defmodule AppWeb.PageLive do
 
   @presence_channel "game"
 
-  @per_page 2000
-  @page_padding 500
+  @start_count 3000
+  @fetch_count 500
 
   @impl true
   def mount(_params, _session, socket) do
     socket =
       assign(socket,
         start_idx: 0,
-        end_idx: @per_page,
+        end_idx: @start_count,
         end_of_board?: false,
         user_count: 1,
         checkboxes: []
@@ -47,11 +47,18 @@ defmodule AppWeb.PageLive do
   end
 
   @impl true
+  def handle_event("update", _, socket) do
+    {:noreply, socket}
+  end
+
+  @impl true
   def handle_event("jump", %{"index" => index}, socket) do
     socket =
       case Integer.parse(index) do
         {index, ""} ->
-          socket
+          start_idx = ((index / @start_count) |> Float.floor() |> trunc()) * @start_count
+          end_idx = start_idx + @start_count
+          socket |> assign(start_idx: start_idx, end_idx: end_idx) |> fetch_checkboxes()
 
         _ ->
           socket
@@ -62,13 +69,13 @@ defmodule AppWeb.PageLive do
 
   @impl true
   def handle_event("next-page", _, socket) do
-    {:noreply, socket |> update_indexes(500) |> fetch_checkboxes()}
+    {:noreply, socket |> update_indexes(@fetch_count) |> fetch_checkboxes()}
   end
 
   @impl true
   def handle_event("prev-page", _, socket) do
     if socket.assigns.start_idx > 0 do
-      {:noreply, socket |> update_indexes(-500) |> fetch_checkboxes()}
+      {:noreply, socket |> update_indexes(-@fetch_count) |> fetch_checkboxes()}
     else
       {:noreply, socket}
     end

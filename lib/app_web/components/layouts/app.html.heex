@@ -37,8 +37,10 @@
     <div class="text-sm">(checking a box checks if for everyone)</div>
   </div>
 
-  <div>
-    Users: <%= assigns[:user_count] %>
+  <div class="flex justify-end items-end">
+    <span class="text-sm font-semibold">
+      Active users: <%= assigns[:user_count] %>
+    </span>
   </div>
 </header>
 <main class="px-4 py-20 sm:px-6 lg:px-8">

@@ -10,5 +10,10 @@ config :app, AppWeb.Endpoint, cache_static_manifest: "priv/static/cache_manifest
 # Do not print debug messages in production
 config :logger, level: :info
 
+config :sentry,
+  environment_name: Mix.env(),
+  enable_source_code_context: true,
+  root_source_code_paths: [File.cwd!()]
+
 # Runtime production configuration, including reading
 # of environment variables, is done on config/runtime.exs.
