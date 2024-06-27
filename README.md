@@ -14,11 +14,13 @@ This project is currently work-in-progress. There are a few major problems that 
 * [ ] (Maybe) get Streams to work.
     * My first implementation was using LiveView streams. That worked alright, but I could not remove old elements, so only new ones were added. When I added a `limit: -3000` to the `stream(:checkboxes, checkboxes, at: at, limit: limit)` call in `PageStreamLive`, the re-render time in the client went from <10ms to almost a second. If we could fix that, streams could work BUT:
     * How can we handle updates to single elements inside a stream? That's the same issue as with the current `assign` implementation in `PageLive`. We'd need to re-render the whole board.
+* [ ] Fix the shift of the board when the rws have an uneven numer of checkboxes 
 * [ ] General QA and testing would be very much appreciated!
 
 ## Optional Fixes
 These fixes are nice-to-have and might become important in the future.
 * [ ] Replace the `MapSet` in the `State` GenServer with an `:ets` table to allow better read concurrency.
+* [ ] When using ':ets', use tab2List to dump the state into the db instead if passing a potentially very long array from the 'State' to the 'Dumper' genserver.
 
 ## Local development
 
