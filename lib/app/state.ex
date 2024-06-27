@@ -21,7 +21,7 @@ defmodule App.State do
   end
 
   def update(index) do
-    GenServer.cast(@me, {:update, index})
+    GenServer.cast(@me, {:update, index, self()})
   end
 
   def load_state(start_index, end_index) do
@@ -36,11 +36,19 @@ defmodule App.State do
     {:ok, state}
   end
 
-  def handle_cast({:update, index}, state) do
+  def handle_cast({:update, index, pid}, state) do
     state =
       if MapSet.member?(state, index) do
+        Phoenix.PubSub.broadcast_from!(
+          App.PubSub,
+          pid,
+          "checkbox:update",
+          {:update, index, false}
+        )
+
         MapSet.delete(state, index)
       else
+        Phoenix.PubSub.broadcast_from!(App.PubSub, pid, "checkbox:update", {:update, index, true})
         MapSet.put(state, index)
       end
 

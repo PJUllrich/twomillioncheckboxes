@@ -87,7 +87,7 @@ defmodule AppWeb.PageStreamLive do
     end_idx = if custom_limit, do: start_idx + custom_limit, else: new_page * per_page
     checkboxes = State.load_state(start_idx, end_idx)
 
-    {checkboxes, at, limit} =
+    {checkboxes, at, _limit} =
       if new_page >= cur_page do
         {checkboxes, -1, per_page * 2 - 1}
       else
@@ -106,7 +106,8 @@ defmodule AppWeb.PageStreamLive do
         |> assign(:end_idx, end_idx)
         # If you add limit: limit here, all hell will break loose in the frontend
         # Every update will take a few seconds until the checkboxes are rendered client-side
-        |> stream(:checkboxes, checkboxes, at: at, reset: reset, limit: limit)
+        # State updates go from 6-10ms to ~1s for removing and adding the new elements.
+        |> stream(:checkboxes, checkboxes, at: at, reset: reset)
     end
   end
 end

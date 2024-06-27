@@ -14,8 +14,7 @@ defmodule App.Application do
       App.State,
       {DNSCluster, query: Application.get_env(:app, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: App.PubSub},
-      # Start a worker by calling: App.Worker.start_link(arg)
-      # {App.Worker, arg},
+      AppWeb.Presence,
       # Start to serve requests, typically the last entry
       AppWeb.Endpoint
     ]
