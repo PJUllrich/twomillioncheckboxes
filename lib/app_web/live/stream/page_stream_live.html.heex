@@ -1,15 +1,17 @@
-<div class="pt-20 min-h-[200vh]">
   <div
     id="game-board"
-    phx-viewport-top={@start_idx > 1 && "prev-page"}
+    phx-update="stream"
+    phx-viewport-top={@page > 1 && "prev-page"}
     phx-viewport-bottom={!@end_of_board? && "next-page"}
     phx-page-loading
     class={[
-      "game w-full gap-2 relative py-80"
+      "game w-full gap-2 relative",
+      if(@end_of_board?, do: "pb-20", else: "pb-[calc(200vh)]"),
+      if(@page == 1, do: "pt-20", else: "pt-[calc(200vh)]")
     ]}
   >
-    <%= for {index, value} <- @checkboxes do %>
-      <input id={"c#{index}"} type="checkbox" value={index} checked={value} phx-click="update" />
+    <%= for {dom_id, {idx, value}} <- @streams.checkboxes do %>
+      <input id={dom_id} type="checkbox" value={idx} checked={value} phx-click="update" />
     <% end %>
   </div>
 
@@ -30,4 +32,3 @@
   <div :if={@end_of_board?} class="mt-5 text-[50px] text-center">
     🎉 You made it to the end of the board 🎉
   </div>
-</div>

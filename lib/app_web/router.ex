@@ -19,6 +19,7 @@ defmodule AppWeb.Router do
     pipe_through :browser
 
     live "/", PageLive
+    live "/stream", PageStreamLive
   end
 
   scope "/admin" do

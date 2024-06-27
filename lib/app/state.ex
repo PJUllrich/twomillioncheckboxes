@@ -1,10 +1,20 @@
 defmodule App.State do
-  alias App.Dumper
-  alias App.Storage
+  @moduledoc """
+  A GenServer that holds the game state in memory and dumbs the state
+  to the database regularly through the Dumper GenServer (arguably,
+  that could have been a Task.start_link/1 call as well).
+  """
   use GenServer
 
+  require Logger
+
+  alias App.Dumper
+  alias App.Storage
+
   @me __MODULE__
-  @backup_interval :timer.seconds(10)
+
+  @backup_interval :timer.minutes(1)
+  @max_checkboxes 2_000_000
 
   def start_link(_args) do
     GenServer.start_link(__MODULE__, %{}, name: @me)
@@ -28,32 +38,35 @@ defmodule App.State do
 
   def handle_cast({:update, index}, state) do
     state =
-      if Map.has_key?(state, index) do
-        Map.delete(state, index)
+      if MapSet.member?(state, index) do
+        MapSet.delete(state, index)
       else
-        Map.put(state, index, true)
+        MapSet.put(state, index)
       end
 
     {:noreply, state}
   end
 
   def handle_call({:get, start_index, end_index}, _from, state) do
-    keys = Enum.to_list(start_index..end_index//1)
-    fields = keys |> Enum.map(fn idx -> {idx, false} end) |> Map.new()
-    values = Map.take(state, keys)
-    checkboxes = Map.merge(fields, values)
+    start_index = max(start_index, 0)
+    end_index = min(end_index, @max_checkboxes)
+
+    Logger.debug("Requesting checkboxes: #{inspect({start_index, end_index})}")
+
+    checkboxes =
+      Enum.map(start_index..end_index//1, fn idx -> {idx, MapSet.member?(state, idx)} end)
 
     {:reply, checkboxes, state}
   end
 
   def handle_info(:dump, state) do
     schedule_dump()
-    state |> Map.keys() |> Dumper.dump()
+    state |> MapSet.to_list() |> Dumper.dump()
     {:noreply, state}
   end
 
   defp load_state() do
-    Storage.get_first_checkboxes_checked() |> Map.from_keys(true)
+    Storage.get_first_checkboxes_checked() |> MapSet.new()
   end
 
   defp schedule_dump() do

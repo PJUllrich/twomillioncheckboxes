@@ -35,7 +35,9 @@ defmodule App.StorageTest do
       checkboxes = checkboxes_fixture()
       update_attrs = %{checked: [1]}
 
-      assert {:ok, %Checkboxes{} = checkboxes} = Storage.update_checkboxes(checkboxes, update_attrs)
+      assert {:ok, %Checkboxes{} = checkboxes} =
+               Storage.update_checkboxes(checkboxes, update_attrs)
+
       assert checkboxes.checked == [1]
     end
 
