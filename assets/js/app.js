@@ -20,11 +20,7 @@ import "phoenix_html";
 // Establish Phoenix Socket and LiveView configuration.
 import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
-import ShowLoadingSpinner from "./hooks/spinner";
 import topbar from "../vendor/topbar";
-
-let Hooks = {};
-Hooks.ShowLoadingSpinner = ShowLoadingSpinner;
 
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
@@ -33,7 +29,6 @@ let csrfToken = document
 let liveSocket = new LiveSocket("/live", Socket, {
   longPollFallbackMs: 5000,
   params: { _csrf_token: csrfToken },
-  hooks: Hooks,
 });
 
 // Show progress bar on live navigation and form submits

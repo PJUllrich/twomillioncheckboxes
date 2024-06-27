@@ -13,6 +13,16 @@ kill_signal = 'SIGTERM'
 release_command = '/app/bin/migrate'
 strategy = "bluegreen"
 
+[[http_service.checks]]
+interval = "10s"
+grace_period = "5s"
+method = "GET"
+path = "/"
+protocol = "http"
+timeout = "2s"
+port = 8080
+tls_skip_verify = false
+
 [env]
 PHX_HOST = 'twomillioncheckboxes.com'
 PORT = '8080'

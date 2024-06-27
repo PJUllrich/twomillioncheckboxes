@@ -24,6 +24,7 @@ This project is currently work-in-progress. There are a few major problems that 
 These fixes are nice-to-have and might become important in the future.
 * [ ] Replace the `MapSet` in the `State` GenServer with an `:ets` table to allow better read concurrency.
 * [ ] When using `:ets`, use `tab2List` to dump the state into the db instead if passing a potentially very long array from the `State` to the `Dumper` genserver.
+* [ ] Store current position as URL parameter to prevent board reload for all users when the server restarts
 
 ## Local development
 
