@@ -3,8 +3,6 @@ defmodule AppWeb.PageLive do
 
   alias App.State
 
-  alias AppWeb.Components.Checkbox
-
   @presence_channel "game"
 
   @start_count 3000

@@ -19,13 +19,19 @@ defmodule AppWeb.PageStreamLive do
 
   @inital_size 1500
   @page_size 500
-  @limit @inital_size + @page_size
+  @limit @inital_size
 
   @impl true
   def mount(_params, _session, socket) do
     socket =
       socket
-      |> assign(page: 1, page_size: @page_size, end_of_board?: false, user_count: 0)
+      |> assign(
+        page: 1,
+        page_size: @page_size,
+        inital_size: @inital_size,
+        end_of_board?: false,
+        user_count: 0
+      )
       |> stream_configure(:checkboxes, dom_id: fn {idx, _value} -> "c#{idx}" end)
       |> stream(:checkboxes, [])
 
@@ -59,7 +65,8 @@ defmodule AppWeb.PageStreamLive do
       case Integer.parse(index) do
         {index, ""} ->
           new_page = (index / @page_size) |> Float.ceil() |> trunc()
-          paginate_checkboxes(socket, new_page, true)
+          # Load three pages of data, which is equal to the initial size
+          paginate_checkboxes(socket, new_page - 2, @inital_size, true)
 
         _ ->
           socket
@@ -99,20 +106,27 @@ defmodule AppWeb.PageStreamLive do
   end
 
   @impl true
-  def handle_info({:update, idx, value}, socket) do
-    # How could we update the stream elements?
-    # We probably would need to make every checkbox a single LiveComponent,
-    # but that'll blow up the browser and our server.
-    # Maybe chunking the checkboxes into e.g. groups of 1000 might help.
-    {:noreply, stream_insert(socket, :checkboxes, {idx, value})}
+  def handle_info({:update, index, value}, socket) do
+    cur_page = socket.assigns.page
+    end_idx = cur_page * @page_size
+    start_idx = end_idx - @limit
+
+    socket =
+      if index in start_idx..end_idx//1 do
+        stream_insert(socket, :checkboxes, {index, value})
+      else
+        socket
+      end
+
+    {:noreply, socket}
   end
 
   defp paginate_checkboxes(socket, new_page, custom_limit \\ nil, reset \\ false)
        when new_page >= 1 do
-    %{page_size: page_size, page: cur_page} = socket.assigns
+    cur_page = socket.assigns.page
 
-    start_idx = max((new_page - 1) * page_size, 0)
-    end_idx = custom_limit || new_page * page_size
+    start_idx = max((new_page - 1) * @page_size, 0)
+    end_idx = if custom_limit, do: start_idx + custom_limit, else: new_page * @page_size
 
     checkboxes = State.load_state(start_idx, end_idx)
 

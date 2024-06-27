@@ -5,9 +5,9 @@
   phx-viewport-bottom={!@end_of_board? && "next-page"}
   phx-page-loading
   class={[
-    "game mx-auto gap-2 mt-52 md:mt-40",
-    if(@end_of_board?, do: "pb-10", else: "pb-[calc(100vh)]"),
-    if(@page == 1, do: "mt-10", else: "pt-[calc(100vh)]")
+    "game max-w-7xl grid grid-cols-[repeat(auto-fit,minmax(25px,1fr))] mx-auto gap-2.5 pt-52 md:pt-40",
+    if(@end_of_board?, do: "pb-10", else: "pb-[calc(200vh)]"),
+    if(@page == 1, do: "pt-10", else: "pt-[calc(200vh)]")
   ]}
 >
   <%= for {dom_id, {index, checked}} <- @streams.checkboxes do %>
@@ -22,7 +22,9 @@
 </div>
 
 <div class="fixed bottom-4 md:bottom-10 right-2 md:right-10 bg-gray-200 border-2 border-blue-500 px-1 py-1 rounded">
-  <div class="mb-1">Showing: <%= (@page - 1) * @page_size %> - <%= @page * @page_size %></div>
+  <div class="mb-1">
+    Showing: <%= (@page - 1) * @page_size %> - <%= @inital_size + @page * @page_size %>
+  </div>
   <.form for={%{}} as={:jump} phx-submit="jump">
     <input type="number" placeholder="Checkbox number" name="index" class="rounded" />
     <button type="submit" class="bg-blue-600 text-white rounded px-2 py-2">Jump</button>

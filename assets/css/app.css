@@ -8,11 +8,6 @@ header a {
   @apply font-semibold hover:underline;
 }
 
-.game {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(25px, 1fr));
-}
-
 .game input[type="checkbox"] {
-  @apply h-6 w-6 rounded-sm;
+  @apply h-7 w-7 rounded-sm;
 }
