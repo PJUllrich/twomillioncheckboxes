@@ -1,0 +1,9 @@
+<div class="game w-full gap-2">
+  <input
+    :for={{idx, value} <- @checkboxes}
+    type="checkbox"
+    value={idx}
+    checked={value}
+    phx-click="update"
+  />
+</div>

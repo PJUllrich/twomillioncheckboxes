@@ -1,0 +1,18 @@
+@import "tailwindcss/base";
+@import "tailwindcss/components";
+@import "tailwindcss/utilities";
+
+/* This file is for your main application CSS */
+
+header a {
+  @apply font-semibold hover:underline;
+}
+
+.game {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(25px, 1fr));
+}
+
+.game input[type="checkbox"] {
+  @apply h-6 w-6 rounded-sm;
+}
