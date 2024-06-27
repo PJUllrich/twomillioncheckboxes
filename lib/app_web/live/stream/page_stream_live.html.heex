@@ -1,34 +1,39 @@
-  <div
-    id="game-board"
-    phx-update="stream"
-    phx-viewport-top={@page > 1 && "prev-page"}
-    phx-viewport-bottom={!@end_of_board? && "next-page"}
-    phx-page-loading
-    class={[
-      "game w-full gap-2 relative",
-      if(@end_of_board?, do: "pb-20", else: "pb-[calc(200vh)]"),
-      if(@page == 1, do: "pt-20", else: "pt-[calc(200vh)]")
-    ]}
-  >
-    <%= for {dom_id, {idx, value}} <- @streams.checkboxes do %>
-      <input id={dom_id} type="checkbox" value={idx} checked={value} phx-click="update" />
-    <% end %>
-  </div>
+<div
+  id="game-board"
+  phx-update="stream"
+  phx-viewport-top={@page > 1 && "prev-page"}
+  phx-viewport-bottom={!@end_of_board? && "next-page"}
+  phx-page-loading
+  class={[
+    "game w-full gap-2 relative pt-52 md:pt-24",
+    if(@end_of_board?, do: "pb-10", else: "pb-[calc(200vh)]")
+  ]}
+>
+  <%= for {dom_id, {index, checked}} <- @streams.checkboxes do %>
+    <input
+      id={dom_id}
+      type="checkbox"
+      checked={checked}
+      phx-click="update"
+      phx-value-index={index}
+    />
+  <% end %>
+</div>
 
-  <div class="fixed bottom-10 right-10 bg-gray-200 border-2 border-blue-500 px-1 py-1 rounded">
-    <div class="mb-1">Showing: <%= @start_idx %> - <%= @end_idx %></div>
-    <.form for={%{}} as={:jump} phx-submit="jump">
-      <input type="number" placeholder="Checkbox number" name="index" class="rounded" />
-      <button type="submit" class="bg-blue-600 text-white rounded px-2 py-2">Jump</button>
-    </.form>
-  </div>
+<div class="fixed bottom-4 md:bottom-10 right-2 md:right-10 bg-gray-200 border-2 border-blue-500 px-1 py-1 rounded">
+  <div class="mb-1">Showing: <%= (@page - 1) * @page_size %> - <%= @page * @page_size %></div>
+  <.form for={%{}} as={:jump} phx-submit="jump">
+    <input type="number" placeholder="Checkbox number" name="index" class="rounded" />
+    <button type="submit" class="bg-blue-600 text-white rounded px-2 py-2">Jump</button>
+  </.form>
+</div>
 
-  <div id="loading-spinner-wrapper" class="mx-auto pt-10 h-8 w-8" phx-hook="ShowLoadingSpinner">
-    <div id="loading-spinner" class="hidden">
-      <.icon name="hero-arrow-path" class="animate-spin" />
-    </div>
+<div id="loading-spinner-wrapper" class="mx-auto pt-10 h-8 w-8" phx-hook="ShowLoadingSpinner">
+  <div id="loading-spinner" class="hidden">
+    <.icon name="hero-arrow-path" class="animate-spin" />
   </div>
+</div>
 
-  <div :if={@end_of_board?} class="mt-5 text-[50px] text-center">
-    🎉 You made it to the end of the board 🎉
-  </div>
+<div :if={@end_of_board?} class="mt-5 text-[50px] text-center">
+  🎉 You made it to the end of the board 🎉
+</div>

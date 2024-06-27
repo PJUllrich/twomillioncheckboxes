@@ -8,8 +8,15 @@
       "game w-full gap-2 relative pt-20 pb-80"
     ]}
   >
-    <%= for {index, value} <- @checkboxes do %>
-      <input id={"c#{index}"} type="checkbox" value={index} checked={value} phx-click="update" />
+    <%= for {index, checked} <- @checkboxes do %>
+      <input
+        id={"c#{index}"}
+        type="checkbox"
+        checked={checked}
+        phx-click="update"
+        phx-value-index={index}
+        phx-value-checked={checked}
+      />
     <% end %>
   </div>
 

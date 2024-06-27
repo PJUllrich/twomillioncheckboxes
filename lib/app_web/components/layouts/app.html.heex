@@ -1,7 +1,7 @@
-<header class="fixed top-0 left-0 right-0 bg-gray-100 z-20 pt-6 pb-4 px-4 sm:px-6 lg:px-8 border-b border-b-gray-800 grid grid-cols-3">
+<header class="fixed top-0 left-0 right-0 bg-gray-100 z-20 pt-6 md:pb-4 px-4 sm:px-6 lg:px-8 border-b border-b-gray-800 grid grid-cols-1 md:grid-cols-3">
   <div class="flex flex-col space-y-1 justify-center">
-    <div>
-      an extended version of
+    <div class="text-center md:text-start">
+      an clone of
       <.link href="https://onemillioncheckboxes.com">
         One Million Checkboxes
       </.link>
@@ -10,10 +10,9 @@
         eieio
       </.link>
     </div>
-    <div>
+    <div class="text-center md:text-start">
       built with <.link href="https://elixir-lang.org/">Elixir</.link>
-      and
-      <.link href="https://github.com/phoenixframework/phoenix_live_view">Phoenix LiveView</.link>
+      and <.link href="https://github.com/phoenixframework/phoenix_live_view">LiveView</.link>
       by
       <.link href="https://twitter.com/pjullrich">
         Peter Ullrich
@@ -30,15 +29,15 @@
     </div>
   </div>
 
-  <div class="text-center">
+  <div class="mt-4 md:mt-0 text-center">
     <div class="text-5xl font-bold">
       <span class="text-red-500 underline">Two</span> Million Checkboxes
     </div>
     <div class="text-sm">(checking a box checks if for everyone)</div>
   </div>
 
-  <div class="flex justify-end items-end">
-    <span class="text-sm font-semibold">
+  <div class="mt-2 md:mt-0 flex justify-end items-end">
+    <span class="text-sm font-semibold min-w-40 text-right">
       Active users: <%= assigns[:user_count] %>
     </span>
   </div>

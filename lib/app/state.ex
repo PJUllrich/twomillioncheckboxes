@@ -39,16 +39,10 @@ defmodule App.State do
   def handle_cast({:update, index, pid}, state) do
     state =
       if MapSet.member?(state, index) do
-        Phoenix.PubSub.broadcast_from!(
-          App.PubSub,
-          pid,
-          "checkbox:update",
-          {:update, index, false}
-        )
-
+        broadcast!(pid, index, false)
         MapSet.delete(state, index)
       else
-        Phoenix.PubSub.broadcast_from!(App.PubSub, pid, "checkbox:update", {:update, index, true})
+        broadcast!(pid, index, true)
         MapSet.put(state, index)
       end
 
@@ -75,6 +69,15 @@ defmodule App.State do
 
   defp load_state() do
     Storage.get_first_checkboxes_checked() |> MapSet.new()
+  end
+
+  defp broadcast!(from_pid, index, value) do
+    Phoenix.PubSub.broadcast_from!(
+      App.PubSub,
+      from_pid,
+      "checkbox:update",
+      {:update, index, value}
+    )
   end
 
   defp schedule_dump() do
