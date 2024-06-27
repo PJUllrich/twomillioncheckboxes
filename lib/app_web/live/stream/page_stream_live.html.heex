@@ -5,8 +5,9 @@
   phx-viewport-bottom={!@end_of_board? && "next-page"}
   phx-page-loading
   class={[
-    "game w-full gap-2 relative pt-52 md:pt-24",
-    if(@end_of_board?, do: "pb-10", else: "pb-[calc(200vh)]")
+    "game mx-auto gap-2 mt-52 md:mt-40",
+    if(@end_of_board?, do: "pb-10", else: "pb-[calc(100vh)]"),
+    if(@page == 1, do: "mt-10", else: "pt-[calc(100vh)]")
   ]}
 >
   <%= for {dom_id, {index, checked}} <- @streams.checkboxes do %>
@@ -29,11 +30,11 @@
 </div>
 
 <div id="loading-spinner-wrapper" class="mx-auto pt-10 h-8 w-8" phx-hook="ShowLoadingSpinner">
-  <div id="loading-spinner" class="hidden">
+  <div id="loading-spinner" class="">
     <.icon name="hero-arrow-path" class="animate-spin" />
   </div>
 </div>
 
-<div :if={@end_of_board?} class="mt-5 text-[50px] text-center">
+<div :if={@end_of_board?} class="mt-5 text-4xl text-center">
   🎉 You made it to the end of the board 🎉
 </div>

@@ -17,7 +17,9 @@ defmodule AppWeb.PageStreamLive do
 
   @presence_channel "game"
 
+  @inital_size 1500
   @page_size 500
+  @limit @inital_size + @page_size
 
   @impl true
   def mount(_params, _session, socket) do
@@ -37,7 +39,7 @@ defmodule AppWeb.PageStreamLive do
         user_count = AppWeb.Presence.list(@presence_channel) |> map_size()
         Phoenix.PubSub.subscribe(App.PubSub, @presence_channel)
         Phoenix.PubSub.subscribe(App.PubSub, "checkbox:update")
-        socket |> assign(user_count: user_count) |> paginate_checkboxes(1)
+        socket |> assign(user_count: user_count) |> paginate_checkboxes(1, @inital_size)
       else
         socket
       end
@@ -105,20 +107,20 @@ defmodule AppWeb.PageStreamLive do
     {:noreply, stream_insert(socket, :checkboxes, {idx, value})}
   end
 
-  defp paginate_checkboxes(socket, new_page, reset \\ false)
+  defp paginate_checkboxes(socket, new_page, custom_limit \\ nil, reset \\ false)
        when new_page >= 1 do
     %{page_size: page_size, page: cur_page} = socket.assigns
 
     start_idx = max((new_page - 1) * page_size, 0)
-    end_idx = new_page * page_size
+    end_idx = custom_limit || new_page * page_size
 
     checkboxes = State.load_state(start_idx, end_idx)
 
     {checkboxes, at, limit} =
       if new_page >= cur_page do
-        {checkboxes, -1, page_size * 3 - 1}
+        {checkboxes, -1, -@limit}
       else
-        {Enum.reverse(checkboxes), 0, page_size * 3}
+        {Enum.reverse(checkboxes), 0, @limit}
       end
 
     case checkboxes do
@@ -129,9 +131,6 @@ defmodule AppWeb.PageStreamLive do
         socket
         |> assign(end_of_board?: false)
         |> assign(:page, new_page)
-        # If you add limit: limit here, all hell will break loose in the frontend
-        # Every update will take a few seconds until the checkboxes are rendered client-side
-        # State updates go from 6-10ms to ~1s for removing and adding the new elements.
         |> stream(:checkboxes, checkboxes, at: at, reset: reset, limit: limit)
     end
   end
