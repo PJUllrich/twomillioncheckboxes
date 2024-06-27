@@ -11,6 +11,7 @@ kill_signal = 'SIGTERM'
 
 [deploy]
 release_command = '/app/bin/migrate'
+strategy = "bluegreen"
 
 [env]
 PHX_HOST = 'twomillioncheckboxes.com'

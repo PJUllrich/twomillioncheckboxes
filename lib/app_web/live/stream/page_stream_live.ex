@@ -81,7 +81,11 @@ defmodule AppWeb.PageStreamLive do
   end
 
   def handle_event("prev-page", %{"_overran" => true}, socket) do
-    {:noreply, paginate_checkboxes(socket, 1)}
+    if socket.assigns.page <= 5 do
+      {:noreply, paginate_checkboxes(socket, 1)}
+    else
+      {:noreply, socket}
+    end
   end
 
   @impl true
