@@ -32,9 +32,12 @@
     <div class="mt-1 text-sm">(checking a box checks it for everyone)</div>
   </div>
 
-  <div class="mt-3 md:mt-0 flex justify-end items-end">
-    <span class="text-sm font-semibold min-w-40 text-right">
-      Active users: <%= assigns[:user_count] %>
+  <div class="mt-3 md:mt-0 flex md:flex-col justify-end items-end space-x-2">
+    <span class="text-sm font-semibold text-right">
+      <%= assigns[:user_count] %> Users
+    </span>
+    <span class="text-sm font-semibold text-right">
+      <%= assigns[:checked_count] %> Checked
     </span>
   </div>
 </header>

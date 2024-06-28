@@ -31,7 +31,8 @@ defmodule AppWeb.PageStreamLive do
         inital_size: @inital_size,
         end_of_board?: false,
         column_count: 20,
-        user_count: 0
+        user_count: 0,
+        checked_count: State.get_checked_count()
       )
       |> stream_configure(:checkboxes, dom_id: fn {idx, _value} -> "c#{idx}" end)
       |> stream(:checkboxes, [])
@@ -119,7 +120,7 @@ defmodule AppWeb.PageStreamLive do
   end
 
   @impl true
-  def handle_info({:update, index, value}, socket) do
+  def handle_info({:update, index, value, checked_count}, socket) do
     cur_page = socket.assigns.page
     end_idx = cur_page * @page_size
     start_idx = end_idx - @limit
@@ -131,7 +132,7 @@ defmodule AppWeb.PageStreamLive do
         socket
       end
 
-    {:noreply, socket}
+    {:noreply, assign(socket, :checked_count, checked_count)}
   end
 
   defp paginate_checkboxes(socket, new_page, custom_limit \\ nil, reset \\ false)
