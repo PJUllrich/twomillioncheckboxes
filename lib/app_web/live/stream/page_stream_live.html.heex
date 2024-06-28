@@ -7,8 +7,8 @@
     phx-page-loading
     class={[
       "game max-w-7xl grid grid-cols-[repeat(auto-fit,minmax(25px,1fr))] mx-auto gap-2 md:gap-2.5",
-      if(@end_of_board?, do: "pb-10", else: "pb-[calc(200vh)]"),
-      if(@page == 1, do: "pt-52 md:pt-40", else: "pt-[calc(200vh)]")
+      if(@end_of_board?, do: "pb-20", else: "pb-[calc(200vh)]"),
+      if(@page == 1, do: "pt-40", else: "pt-[calc(200vh)]")
     ]}
   >
     <%= for {dom_id, {index, checked}} <- @streams.checkboxes do %>

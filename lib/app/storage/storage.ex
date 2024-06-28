@@ -39,15 +39,18 @@ defmodule App.Storage do
 
   def get_first_checkboxes(), do: Repo.get(Checkboxes, 1)
 
+  @doc """
+  Returns the list of indexes that were checked as a list of tuples
+  with the format `[{123, true}, {345, true}]`
+  """
   def get_first_checkboxes_checked() do
-    Checkboxes
-    |> where(id: ^1)
-    |> select([:checked])
-    |> Repo.one()
-    |> case do
-      nil -> []
-      %{checked: checked} -> checked
-    end
+    from(cb in Checkboxes,
+      where: cb.id == ^1,
+      inner_lateral_join: idx in fragment("SELECT unnest(?)", cb.checked),
+      on: true,
+      select: fragment("(?, ?)", field(idx, :unnest), true)
+    )
+    |> Repo.all()
   end
 
   @doc """

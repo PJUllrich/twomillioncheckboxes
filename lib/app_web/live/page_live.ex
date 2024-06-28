@@ -104,7 +104,7 @@ defmodule AppWeb.PageLive do
 
   def fetch_checkboxes(socket) do
     %{start_idx: start_idx, end_idx: end_idx} = socket.assigns
-    checkboxes = State.load_state(start_idx, end_idx)
+    checkboxes = State.get_checkboxes(start_idx, end_idx)
     assign(socket, :checkboxes, checkboxes)
   end
 

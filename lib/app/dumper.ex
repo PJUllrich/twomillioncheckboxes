@@ -13,8 +13,8 @@ defmodule App.Dumper do
     GenServer.start_link(@me, nil, name: @me)
   end
 
-  def dump(checked) when is_list(checked) do
-    GenServer.cast(@me, {:dump, checked})
+  def dump(ets_table) do
+    GenServer.cast(@me, {:dump, ets_table})
   end
 
   # GenServer Callbacks
@@ -23,8 +23,9 @@ defmodule App.Dumper do
     {:ok, nil}
   end
 
-  def handle_cast({:dump, checked}, state) when is_list(checked) do
+  def handle_cast({:dump, ets_table}, state) do
     Logger.info("Dumping...")
+    checked = ets_table |> :ets.tab2list() |> Enum.map(&elem(&1, 0))
 
     {:ok, _checkboxes} =
       case Storage.get_first_checkboxes() do

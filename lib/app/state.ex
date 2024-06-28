@@ -13,6 +13,7 @@ defmodule App.State do
 
   @me __MODULE__
 
+  @table :game_state
   @backup_interval :timer.minutes(1)
   @max_checkboxes 2_000_000
 
@@ -24,51 +25,48 @@ defmodule App.State do
     GenServer.cast(@me, {:update, index, self()})
   end
 
-  def load_state(start_index, end_index) do
-    GenServer.call(@me, {:get, start_index, end_index})
-  end
-
-  # GenServer Callbacks
-
-  def init(_args) do
-    state = load_state()
-    schedule_dump()
-    {:ok, state}
-  end
-
-  def handle_cast({:update, index, pid}, state) do
-    state =
-      if MapSet.member?(state, index) do
-        broadcast!(pid, index, false)
-        MapSet.delete(state, index)
-      else
-        broadcast!(pid, index, true)
-        MapSet.put(state, index)
-      end
-
-    {:noreply, state}
-  end
-
-  def handle_call({:get, start_index, end_index}, _from, state) do
+  def get_checkboxes(start_index, end_index) do
     start_index = max(start_index, 0)
     end_index = min(end_index, @max_checkboxes)
 
     Logger.debug("Requesting checkboxes: #{inspect({start_index, end_index})}")
 
-    checkboxes =
-      Enum.map(start_index..end_index//1, fn idx -> {idx, MapSet.member?(state, idx)} end)
+    Enum.map(start_index..end_index//1, fn idx -> {idx, :ets.member(@table, idx)} end)
+  end
 
-    {:reply, checkboxes, state}
+  # GenServer Callbacks
+
+  def init(_args) do
+    create_table()
+    load_table()
+    schedule_dump()
+    {:ok, nil}
+  end
+
+  def handle_cast({:update, index, pid}, state) do
+    if :ets.member(@table, index) do
+      broadcast!(pid, index, false)
+      :ets.delete(@table, index)
+    else
+      broadcast!(pid, index, true)
+      :ets.insert(@table, {index, true})
+    end
+
+    {:noreply, state}
   end
 
   def handle_info(:dump, state) do
     schedule_dump()
-    state |> MapSet.to_list() |> Dumper.dump()
+    Dumper.dump(@table)
     {:noreply, state}
   end
 
-  defp load_state() do
-    Storage.get_first_checkboxes_checked() |> MapSet.new()
+  defp create_table() do
+    :ets.new(@table, [:set, :protected, :named_table, read_concurrency: true])
+  end
+
+  defp load_table() do
+    :ets.insert(@table, Storage.get_first_checkboxes_checked())
   end
 
   defp broadcast!(from_pid, index, value) do

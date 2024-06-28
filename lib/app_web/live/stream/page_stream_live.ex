@@ -19,7 +19,7 @@ defmodule AppWeb.PageStreamLive do
 
   @inital_size 1500
   @page_size 500
-  @limit @inital_size
+  @limit @inital_size + @page_size
 
   @impl true
   def mount(_params, _session, socket) do
@@ -146,7 +146,7 @@ defmodule AppWeb.PageStreamLive do
     diff = end_idx - start_idx
     end_idx = end_idx - rem(diff, column_count) - 1
 
-    checkboxes = State.load_state(start_idx, end_idx)
+    checkboxes = State.get_checkboxes(start_idx, end_idx)
 
     {checkboxes, at, limit} =
       if new_page >= cur_page do

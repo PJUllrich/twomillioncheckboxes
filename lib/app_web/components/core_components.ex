@@ -151,7 +151,7 @@ defmodule AppWeb.CoreComponents do
       <.flash
         id="client-error"
         kind={:error}
-        title="We can't find the internet"
+        title="Lost connection. Retrying..."
         phx-disconnected={show(".phx-client-error #client-error")}
         phx-connected={hide("#client-error")}
         hidden
