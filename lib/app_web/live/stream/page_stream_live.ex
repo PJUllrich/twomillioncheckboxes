@@ -132,7 +132,14 @@ defmodule AppWeb.PageStreamLive do
         socket
       end
 
-    {:noreply, assign(socket, :checked_count, checked_count)}
+    socket =
+      if Enum.random(1..10//1) == 1 do
+        assign(socket, :checked_count, checked_count)
+      else
+        socket
+      end
+
+    {:noreply, socket}
   end
 
   defp paginate_checkboxes(socket, new_page, custom_limit \\ nil, reset \\ false)
