@@ -15,10 +15,12 @@ defmodule AppWeb.PageStreamLive do
 
   alias App.State
 
+  alias AppWeb.Stream.Checkbox
+
   @presence_channel "game"
 
-  @inital_rows 40
-  @fetch_rows 15
+  @inital_rows 30
+  @fetch_rows 10
 
   @impl true
   def mount(_params, _session, socket) do
@@ -93,7 +95,7 @@ defmodule AppWeb.PageStreamLive do
   end
 
   def handle_event("prev-page", %{"_overran" => true}, socket) do
-    if socket.assigns.page <= 5 do
+    if socket.assigns.page <= 10 do
       {:noreply, paginate_checkboxes(socket, 1)}
     else
       {:noreply, socket}
@@ -123,16 +125,14 @@ defmodule AppWeb.PageStreamLive do
 
   @impl true
   def handle_info({:update, index, value}, socket) do
-    %{page: cur_page, page_size: page_size} = socket.assigns
-    end_idx = cur_page * page_size
-    start_idx = end_idx - @inital_rows * page_size
+    %{page: page, page_size: page_size, column_count: column_count} = socket.assigns
 
-    socket =
-      if index in start_idx..end_idx//1 do
-        stream_insert(socket, :checkboxes, {index, value})
-      else
-        socket
-      end
+    start_idx = (page - 3) * page_size
+    end_idx = start_idx + @inital_rows * column_count + 3 * page_size
+
+    if index in start_idx..end_idx//1 do
+      send_update(Checkbox, id: "c#{index}", checked: value)
+    end
 
     {:noreply, socket}
   end

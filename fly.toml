@@ -41,6 +41,6 @@ hard_limit = 1000
 soft_limit = 1000
 
 [[vm]]
-memory = '8gb'
+memory = '4gb'
 cpu_kind = 'performance'
 cpus = 2

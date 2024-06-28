@@ -12,13 +12,7 @@
     ]}
   >
     <%= for {dom_id, {index, checked}} <- @streams.checkboxes do %>
-      <input
-        id={dom_id}
-        type="checkbox"
-        checked={checked}
-        phx-click="update"
-        phx-value-index={index}
-      />
+      <.live_component id={dom_id} module={Checkbox} index={index} checked={checked} />
     <% end %>
   </div>
 </div>
