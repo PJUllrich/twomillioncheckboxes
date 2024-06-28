@@ -61,7 +61,10 @@ defmodule AppWeb.PageStreamLive do
 
   @impl true
   def handle_event("update", %{"index" => index}, socket) do
-    index |> String.to_integer() |> State.update()
+    with {index, ""} <- Integer.parse(index) do
+      State.update(index)
+    end
+
     {:noreply, socket}
   end
 
@@ -132,6 +135,8 @@ defmodule AppWeb.PageStreamLive do
   end
 
   defp paginate_checkboxes(socket, new_page, custom_limit \\ nil, reset \\ false)
+
+  defp paginate_checkboxes(socket, new_page, custom_limit, reset)
        when new_page >= 1 do
     %{page: cur_page, column_count: column_count} = socket.assigns
 
@@ -166,4 +171,6 @@ defmodule AppWeb.PageStreamLive do
         |> stream(:checkboxes, checkboxes, at: at, reset: reset, limit: limit)
     end
   end
+
+  defp paginate_checkboxes(socket, _new_page, _custom_limit, _reset), do: socket
 end

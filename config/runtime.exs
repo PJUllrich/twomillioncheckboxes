@@ -63,6 +63,7 @@ if config_env() == :prod do
       ip: {0, 0, 0, 0, 0, 0, 0, 0},
       port: port
     ],
+    force_ssl: [rewrite_on: [:x_forwarded_proto]],
     secret_key_base: secret_key_base
 
   config :sentry, dsn: System.get_env("SENTRY_DSN")
