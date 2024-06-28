@@ -7,8 +7,8 @@
     phx-page-loading
     class={[
       "game max-w-7xl grid grid-cols-[repeat(auto-fit,minmax(25px,1fr))] mx-auto gap-2 md:gap-2.5",
-      if(@end_of_board?, do: "pb-20", else: "pb-[calc(200vh)]"),
-      if(@page == 1, do: "pt-40", else: "pt-[calc(200vh)]")
+      if(@end_of_board?, do: "pb-20", else: "pb-[calc(100vh)]"),
+      if(@page == 1, do: "pt-40", else: "pt-[calc(100vh)]")
     ]}
   >
     <%= for {dom_id, {index, checked}} <- @streams.checkboxes do %>
@@ -25,7 +25,8 @@
 
 <div class="fixed bottom-4 md:bottom-10 right-2 md:right-10 bg-gray-200 border-2 border-blue-500 px-1 py-1 rounded">
   <div class="mb-1">
-    Showing: <%= (@page - 1) * @page_size %> - <%= @inital_size + @page * @page_size %>
+    Showing: <%= (@page - 1) * @page_size %> - <%= @inital_rows * @column_count +
+      @page * @page_size %>
   </div>
   <.form for={%{}} as={:jump} phx-submit="jump">
     <input type="number" placeholder="Checkbox number" name="index" class="rounded" />

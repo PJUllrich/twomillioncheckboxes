@@ -25,10 +25,6 @@ defmodule App.State do
     GenServer.cast(@me, {:update, index, self()})
   end
 
-  def get_checked_count() do
-    @table |> :ets.info() |> Keyword.get(:size)
-  end
-
   def get_checkboxes(start_index, end_index) do
     start_index = max(start_index, 0)
     end_index = min(end_index, @max_checkboxes)
@@ -37,6 +33,8 @@ defmodule App.State do
 
     Enum.map(start_index..end_index//1, fn idx -> {idx, :ets.member(@table, idx)} end)
   end
+
+  def table_name(), do: @table
 
   # GenServer Callbacks
 
@@ -48,13 +46,11 @@ defmodule App.State do
   end
 
   def handle_cast({:update, index, pid}, state) do
-    count = get_checked_count()
-
     if :ets.member(@table, index) do
-      broadcast!(pid, index, false, count - 1)
+      broadcast!(pid, index, false)
       :ets.delete(@table, index)
     else
-      broadcast!(pid, index, true, count + 1)
+      broadcast!(pid, index, true)
       :ets.insert(@table, {index, true})
     end
 
@@ -75,12 +71,12 @@ defmodule App.State do
     :ets.insert(@table, Storage.get_first_checkboxes_checked())
   end
 
-  defp broadcast!(from_pid, index, value, checked_count) do
+  defp broadcast!(from_pid, index, value) do
     Phoenix.PubSub.broadcast_from!(
       App.PubSub,
       from_pid,
       "checkbox:update",
-      {:update, index, value, checked_count}
+      {:update, index, value}
     )
   end
 

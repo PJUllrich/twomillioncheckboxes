@@ -17,9 +17,8 @@ defmodule AppWeb.PageStreamLive do
 
   @presence_channel "game"
 
-  @inital_size 1500
-  @page_size 500
-  @limit @inital_size + @page_size
+  @inital_rows 40
+  @fetch_rows 15
 
   @impl true
   def mount(_params, _session, socket) do
@@ -27,12 +26,12 @@ defmodule AppWeb.PageStreamLive do
       socket
       |> assign(
         page: 1,
-        page_size: @page_size,
-        inital_size: @inital_size,
         end_of_board?: false,
         column_count: 20,
+        inital_rows: @inital_rows,
         user_count: 0,
-        checked_count: State.get_checked_count()
+        page_size: 0,
+        checked_count: 0
       )
       |> stream_configure(:checkboxes, dom_id: fn {idx, _value} -> "c#{idx}" end)
       |> stream(:checkboxes, [])
@@ -47,7 +46,7 @@ defmodule AppWeb.PageStreamLive do
         user_count = AppWeb.Presence.list(@presence_channel) |> map_size()
         Phoenix.PubSub.subscribe(App.PubSub, @presence_channel)
         Phoenix.PubSub.subscribe(App.PubSub, "checkbox:update")
-        socket |> assign(user_count: user_count) |> paginate_checkboxes(1, @inital_size)
+        assign(socket, user_count: user_count)
       else
         socket
       end
@@ -57,7 +56,10 @@ defmodule AppWeb.PageStreamLive do
 
   @impl true
   def handle_event("column-count", column_count, socket) do
-    {:noreply, assign(socket, :column_count, column_count)}
+    {:noreply,
+     socket
+     |> assign(column_count: column_count, page_size: @fetch_rows * column_count)
+     |> paginate_checkboxes(1, @inital_rows)}
   end
 
   @impl true
@@ -74,9 +76,9 @@ defmodule AppWeb.PageStreamLive do
     socket =
       case Integer.parse(index) do
         {index, ""} ->
-          new_page = (index / @page_size) |> Float.ceil() |> trunc()
-          # Load three pages of data, which is equal to the initial size
-          paginate_checkboxes(socket, new_page - 2, @inital_size, true)
+          new_page = (index / socket.assigns.page_size) |> Float.ceil() |> trunc()
+          # Load one page before the cutoff data
+          paginate_checkboxes(socket, new_page - 1, @inital_rows, true)
 
         _ ->
           socket
@@ -120,10 +122,10 @@ defmodule AppWeb.PageStreamLive do
   end
 
   @impl true
-  def handle_info({:update, index, value, checked_count}, socket) do
-    cur_page = socket.assigns.page
-    end_idx = cur_page * @page_size
-    start_idx = end_idx - @limit
+  def handle_info({:update, index, value}, socket) do
+    %{page: cur_page, page_size: page_size} = socket.assigns
+    end_idx = cur_page * page_size
+    start_idx = end_idx - @inital_rows * page_size
 
     socket =
       if index in start_idx..end_idx//1 do
@@ -132,40 +134,50 @@ defmodule AppWeb.PageStreamLive do
         socket
       end
 
-    socket =
-      if Enum.random(1..10//1) == 1 do
-        assign(socket, :checked_count, checked_count)
-      else
-        socket
-      end
-
     {:noreply, socket}
   end
 
-  defp paginate_checkboxes(socket, new_page, custom_limit \\ nil, reset \\ false)
+  @impl true
+  def handle_info({:count, count}, socket) do
+    {:noreply, assign(socket, :checked_count, count)}
+  end
 
-  defp paginate_checkboxes(socket, new_page, custom_limit, reset)
+  defp paginate_checkboxes(socket, new_page, custom_rows \\ nil, reset \\ false)
+
+  defp paginate_checkboxes(socket, new_page, custom_rows, reset)
        when new_page >= 1 do
     %{page: cur_page, column_count: column_count} = socket.assigns
 
-    start_idx = max((new_page - 1) * @page_size, 0)
-    end_idx = if custom_limit, do: start_idx + custom_limit, else: new_page * @page_size
+    # Let the page size depend on how many columns are displayed
+    page_size = @fetch_rows * column_count
+
+    start_idx = max((new_page - 1) * page_size, 0)
+
+    # Load a custom number of rows or the default page size
+    end_idx =
+      if custom_rows,
+        do: start_idx + custom_rows * column_count,
+        else: new_page * page_size
+
+    # Adjust for the zero-based index of checkboxes
+    end_idx = end_idx - 1
+
+    adj_limit = (@inital_rows + @fetch_rows) * column_count
 
     # Only fetch "full" rows of data so that the board doesn't shift.
     # If we'd e.g. show 20 checkboxes in a 5x4 grid, then add 7 and remove 7,
     # the board would shift to the left by 2 (7 - 5) checkboxes. This here
     # allows us to only fetch and remove 5 checkboxes, which would keep the
     # current layout
-    diff = end_idx - start_idx
-    end_idx = end_idx - rem(diff, column_count) - 1
+    scrolling_down? = new_page >= cur_page
 
     checkboxes = State.get_checkboxes(start_idx, end_idx)
 
-    {checkboxes, at, limit} =
-      if new_page >= cur_page do
-        {checkboxes, -1, -@limit}
+    {checkboxes, at, adj_limit} =
+      if scrolling_down? do
+        {checkboxes, -1, -adj_limit}
       else
-        {Enum.reverse(checkboxes), 0, @limit}
+        {Enum.reverse(checkboxes), 0, adj_limit}
       end
 
     case checkboxes do
@@ -176,9 +188,9 @@ defmodule AppWeb.PageStreamLive do
         socket
         |> assign(end_of_board?: false)
         |> assign(:page, new_page)
-        |> stream(:checkboxes, checkboxes, at: at, reset: reset, limit: limit)
+        |> stream(:checkboxes, checkboxes, at: at, reset: reset, limit: adj_limit)
     end
   end
 
-  defp paginate_checkboxes(socket, _new_page, _custom_limit, _reset), do: socket
+  defp paginate_checkboxes(socket, _new_page, _custom_rows, _reset), do: socket
 end

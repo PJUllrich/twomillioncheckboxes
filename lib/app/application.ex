@@ -16,6 +16,7 @@ defmodule App.Application do
       App.Repo,
       App.Dumper,
       App.State,
+      App.Counter,
       {DNSCluster, query: Application.get_env(:app, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: App.PubSub},
       AppWeb.Presence,
