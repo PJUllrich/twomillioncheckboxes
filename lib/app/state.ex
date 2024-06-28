@@ -31,7 +31,7 @@ defmodule App.State do
 
     Logger.debug("Requesting checkboxes: #{inspect({start_index, end_index})}")
 
-    Enum.map(start_index..end_index//1, fn idx -> {idx, :ets.member(@table, idx)} end)
+    Enum.map(start_index..end_index, fn idx -> {idx, :ets.member(@table, idx)} end)
   end
 
   def table_name(), do: @table

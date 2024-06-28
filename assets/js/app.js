@@ -23,6 +23,7 @@ import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
 
 import CalculateColumnCount from "./hooks/calculate_column_count";
+import InfinityScroll from "./hooks/infinity_scroll";
 
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
@@ -30,6 +31,7 @@ let csrfToken = document
 
 let Hooks = {};
 Hooks.CalculateColumnCount = CalculateColumnCount;
+Hooks.InfinityScroll = InfinityScroll;
 
 let liveSocket = new LiveSocket("/live", Socket, {
   params: { _csrf_token: csrfToken },
