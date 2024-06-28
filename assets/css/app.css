@@ -9,5 +9,5 @@ header a {
 }
 
 .game input[type="checkbox"] {
-  @apply h-7 w-7 rounded-sm;
+  @apply h-6 w-6 md:h-7 md:w-7 rounded-sm;
 }

@@ -22,13 +22,19 @@ import { Socket } from "phoenix";
 import { LiveSocket } from "phoenix_live_view";
 import topbar from "../vendor/topbar";
 
+import CalculateColumnCount from "./hooks/calculate_column_count";
+
 let csrfToken = document
   .querySelector("meta[name='csrf-token']")
   .getAttribute("content");
 
+let Hooks = {};
+Hooks.CalculateColumnCount = CalculateColumnCount;
+
 let liveSocket = new LiveSocket("/live", Socket, {
-  longPollFallbackMs: 5000,
   params: { _csrf_token: csrfToken },
+  // longPollFallbackMs: 5000,
+  hooks: Hooks,
 });
 
 // Show progress bar on live navigation and form submits

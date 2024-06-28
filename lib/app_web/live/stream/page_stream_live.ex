@@ -30,6 +30,7 @@ defmodule AppWeb.PageStreamLive do
         page_size: @page_size,
         inital_size: @inital_size,
         end_of_board?: false,
+        column_count: 20,
         user_count: 0
       )
       |> stream_configure(:checkboxes, dom_id: fn {idx, _value} -> "c#{idx}" end)
@@ -51,6 +52,11 @@ defmodule AppWeb.PageStreamLive do
       end
 
     {:ok, socket}
+  end
+
+  @impl true
+  def handle_event("column-count", column_count, socket) do
+    {:noreply, assign(socket, :column_count, column_count)}
   end
 
   @impl true
@@ -127,10 +133,18 @@ defmodule AppWeb.PageStreamLive do
 
   defp paginate_checkboxes(socket, new_page, custom_limit \\ nil, reset \\ false)
        when new_page >= 1 do
-    cur_page = socket.assigns.page
+    %{page: cur_page, column_count: column_count} = socket.assigns
 
     start_idx = max((new_page - 1) * @page_size, 0)
     end_idx = if custom_limit, do: start_idx + custom_limit, else: new_page * @page_size
+
+    # Only fetch "full" rows of data so that the board doesn't shift.
+    # If we'd e.g. show 20 checkboxes in a 5x4 grid, then add 7 and remove 7,
+    # the board would shift to the left by 2 (7 - 5) checkboxes. This here
+    # allows us to only fetch and remove 5 checkboxes, which would keep the
+    # current layout
+    diff = end_idx - start_idx
+    end_idx = end_idx - rem(diff, column_count) - 1
 
     checkboxes = State.load_state(start_idx, end_idx)
 
