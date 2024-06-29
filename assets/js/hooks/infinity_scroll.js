@@ -21,7 +21,7 @@ export default {
     this.pending = this.page();
     this.lastScrollTop = 0;
     this.lastScrollBottom = 0;
-    this.topThreshold = 15;
+    this.topThreshold = 25;
     this.bottomThreshold = 85;
 
     window.addEventListener("scroll", (e) => {
@@ -39,14 +39,14 @@ export default {
       this.lastScrollTop = currentTopPosition;
       this.lastScrollBottom = currentBottomPosition;
 
-      console.log([
-        currentTopPosition,
-        currentBottomPosition,
-        isCloseToBottom,
-        isCloseToTop,
-        this.pending,
-        this.page(),
-      ]);
+      // console.log([
+      //   currentTopPosition,
+      //   currentBottomPosition,
+      //   isCloseToBottom,
+      //   isCloseToTop,
+      //   this.pending,
+      //   this.page(),
+      // ]);
 
       if (this.pending == this.page() && isCloseToBottom) {
         this.pending = this.page() + 1;

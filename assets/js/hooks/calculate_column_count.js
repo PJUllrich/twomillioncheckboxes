@@ -19,7 +19,7 @@ export default {
       window.innerHeight || 0,
     );
 
-    const rowCount = Math.round((vh / rowHeight) * 1.5);
+    const rowCount = Math.round((vh / rowHeight) * 2);
 
     this.pushEvent("column-count", {
       columnCount: columnCount,

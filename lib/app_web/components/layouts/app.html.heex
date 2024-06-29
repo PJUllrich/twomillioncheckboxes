@@ -1,4 +1,4 @@
-<header class="fixed top-0 left-0 right-0 bg-gray-100 z-20 pt-6 md:pb-4 px-4 sm:px-6 lg:px-8 border-b border-b-gray-800 grid grid-cols-1 md:grid-cols-3">
+<header class="fixed top-0 left-0 right-0 bg-gray-100 z-20 pt-0 md:pt-6 md:pb-4 px-4 sm:px-6 lg:px-8 border-b border-b-gray-800 grid grid-cols-1 md:grid-cols-3">
   <div class="flex flex-col space-y-1 justify-center">
     <div class="text-center md:text-start">
       a clone of
@@ -25,7 +25,7 @@
     </div>
   </div>
 
-  <div class="mt-3 md:mt-0 text-center">
+  <div class="mt-2 md:mt-0 text-center">
     <.link navigate={~p"/"} class="text-3xl md:text-5xl font-bold">
       <span class="text-red-500 text-4xl md:text-6xl underline">Two</span> Million Checkboxes
     </.link>
@@ -33,7 +33,7 @@
     <div class="mt-1 text-sm">(checking a box checks it for everyone)</div>
   </div>
 
-  <div class="mt-3 md:mt-0 flex md:flex-col justify-end items-end space-x-2">
+  <div class="mt-2 md:mt-0 flex md:flex-col justify-end items-end space-x-2">
     <span class="text-sm font-semibold text-right">
       <%= assigns[:user_count] %> Users
     </span>

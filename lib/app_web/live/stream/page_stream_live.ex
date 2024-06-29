@@ -37,7 +37,8 @@ defmodule AppWeb.PageStreamLive do
         checked_count: 0,
         limit: 0,
         start_idx: 0,
-        end_idx: 0
+        end_idx: 0,
+        page_size: 0
       )
       |> stream_configure(:checkboxes, dom_id: fn {idx, _value} -> "c#{idx}" end)
       # We need to render one checkbox at the start to calculate its height in the phx hook.
@@ -155,7 +156,14 @@ defmodule AppWeb.PageStreamLive do
   defp paginate_checkboxes(socket, new_page, initial_load \\ false, reset \\ false)
 
   defp paginate_checkboxes(socket, -1, _initial_load, _reset) do
-    paginate_checkboxes(socket, 0, true, true)
+    %{column_count: column_count, row_count: row_count} = socket.assigns
+
+    socket
+    |> assign(
+      start_idx: 0,
+      end_idx: column_count * row_count
+    )
+    |> paginate_checkboxes(0, true, true)
   end
 
   defp paginate_checkboxes(socket, new_page, initial_load, reset) do
